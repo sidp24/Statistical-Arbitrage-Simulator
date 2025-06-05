@@ -1,68 +1,58 @@
 import pandas as pd
-
 class PairTradingBacktester:
-    def __init__(self, csv_path, entry_z=1.0, exit_z=0.5, capital=10000, tickers=None):
-        self.data = pd.read_csv(csv_path, index_col=0, parse_dates=True)
+    def __init__(self, path_to_signals, entry_z, exit_z, capital, tickers=None):
+        self.path = path_to_signals
         self.entry_z = entry_z
         self.exit_z = exit_z
         self.capital = capital
-        self.positions = []
-        self.trades = []
-        self.t1, self.t2 = tickers if tickers else ("AAPL", "MSFT")  # Default fallback
+        self.tickers = tickers
+        self.trade_log = pd.DataFrame()  # Initialize to avoid attribute errors
 
     def backtest(self):
-        in_position = False
-        entry_date = None
-        entry_zscore = None
+        # Load signal data
+        df = pd.read_csv(self.path, parse_dates=True, index_col=0)
+        df["Position"] = 0
+        position = 0
 
-        for i in range(len(self.data)):
-            z = self.data["Z-Score"].iloc[i]
-            spread = self.data["Spread"].iloc[i]
-            date = self.data.index[i]
-            t1_price = self.data[self.t1].iloc[i]
-            t2_price = self.data[self.t2].iloc[i]
+        trades = []
 
-            if not in_position:
+        for i in range(1, len(df)):
+            z = df["zscore"].iloc[i]
+
+            if position == 0:
                 if z > self.entry_z:
-                    # SHORT t1, LONG t2
-                    self.positions.append(("SHORT", date, t1_price, t2_price, z))
-                    in_position = True
-                    entry_date = date
-                    entry_zscore = z
-
+                    position = -1
+                    entry_idx = i
+                    entry_spread = df["spread"].iloc[i]
                 elif z < -self.entry_z:
-                    # LONG t1, SHORT t2
-                    self.positions.append(("LONG", date, t1_price, t2_price, z))
-                    in_position = True
-                    entry_date = date
-                    entry_zscore = z
+                    position = 1
+                    entry_idx = i
+                    entry_spread = df["spread"].iloc[i]
 
-            elif in_position:
-                if abs(z) < self.exit_z:
-                    exit_date = date
-                    exit_t1 = t1_price
-                    exit_t2 = t2_price
-                    direction, entry_date, entry_t1, entry_t2, _ = self.positions.pop()
-                    pnl = self._calculate_pnl(direction, entry_t1, entry_t2, exit_t1, exit_t2)
-                    self.trades.append({
-                        "Direction": direction,
-                        "Entry Date": entry_date,
-                        "Exit Date": exit_date,
-                        "PnL": pnl,
-                        "Entry Z": entry_zscore,
-                        "Exit Z": z
+            elif position != 0:
+                if (position == -1 and z < self.exit_z) or (position == 1 and z > -self.exit_z):
+                    exit_idx = i
+                    exit_spread = df["spread"].iloc[i]
+
+                    pnl = (entry_spread - exit_spread) * position
+                    trades.append({
+                        "Entry Date": df.index[entry_idx],
+                        "Exit Date": df.index[exit_idx],
+                        "PnL": pnl
                     })
-                    in_position = False
 
-    def _calculate_pnl(self, direction, entry_t1, entry_t2, exit_t1, exit_t2):
-        if direction == "LONG":
-            return (exit_t1 - entry_t1) - (exit_t2 - entry_t2)
-        elif direction == "SHORT":
-            return (entry_t1 - exit_t1) - (entry_t2 - exit_t2)
+                    position = 0
+
+        # Convert trades to DataFrame
+        trade_df = pd.DataFrame(trades)
+
+        if not trade_df.empty:
+            trade_df["Cumulative PnL"] = trade_df["PnL"].cumsum()
+
+        self.trade_log = trade_df
 
     def summary(self):
-        df = pd.DataFrame(self.trades)
-        df["Cumulative PnL"] = df["PnL"].cumsum()
-        print(df[["Entry Date", "Exit Date", "Direction", "PnL", "Cumulative PnL"]])
-        print("\nTotal Return:", df["PnL"].sum())
-        return df
+        if not hasattr(self, "trade_log") or self.trade_log.empty:
+            return pd.DataFrame(columns=["Entry Date", "Exit Date", "PnL", "Cumulative PnL"])
+
+        return self.trade_log
