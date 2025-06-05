@@ -10,10 +10,10 @@ from analysis.metrics import sharpe_ratio, max_drawdown, plot_cumulative_pnl
 from config import *
 
 def main():
-    print("📥 Downloading price data...")
+    print("Downloading price data...")
     download_prices(TICKERS, START_DATE, END_DATE, PRICE_DATA_PATH)
 
-    print("\n🔗 Finding cointegrated pairs...")
+    print("\nFinding cointegrated pairs...")
     price_df = pd.read_csv(PRICE_DATA_PATH, index_col=0, parse_dates=True)
     pairs, _ = find_cointegrated_pairs(price_df, significance=P_VALUE_THRESHOLD)
 
@@ -26,7 +26,7 @@ def main():
 
     for pair in pairs:
         t1, t2, pval = pair
-        print(f"\n🧠 Pair: {t1} & {t2} (p={pval:.4f})")
+        print(f"\nPair: {t1} & {t2} (p={pval:.4f})")
 
         s1 = np.log(price_df[t1])
         s2 = np.log(price_df[t2])
@@ -42,16 +42,15 @@ def main():
         trades["Pair"] = f"{t1}-{t2}"
         all_trades.append(trades)
 
-
-    print("\n📊 Aggregating performance across all pairs...")
+    print("\nAggregating performance across all pairs...")
     all_trades_df = pd.concat(all_trades, ignore_index=True)
     all_trades_df.to_csv("data/all_trades.csv", index=False)
 
     pnl_series = all_trades_df["PnL"]
-    print(f"\n🧾 Total Pairs Traded: {len(pairs)}")
-    print(f"📈 Total Trades: {len(all_trades_df)}")
-    print(f"📉 Max Drawdown: {max_drawdown(pnl_series):.4f}")
-    print(f"📊 Sharpe Ratio: {sharpe_ratio(pnl_series):.4f}")
+    print(f"\nTotal Pairs Traded: {len(pairs)}")
+    print(f"Total Trades: {len(all_trades_df)}")
+    print(f"Max Drawdown: {max_drawdown(pnl_series):.4f}")
+    print(f"Sharpe Ratio: {sharpe_ratio(pnl_series):.4f}")
 
     plot_cumulative_pnl(pnl_series)
 

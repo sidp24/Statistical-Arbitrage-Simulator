@@ -41,4 +41,4 @@ Planned Improvements:
     Sector/industry filtering and cointegration clustering
 
 License
-MIT © 2024 Siddharth Paul
+MIT © 20245Siddharth Paul
