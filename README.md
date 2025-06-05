@@ -14,6 +14,7 @@ pip install -r requirements.txt
 Usage:
 Run the full backtesting pipeline:
 python main.py
+streamlit run app.py
 
 This will:
 
