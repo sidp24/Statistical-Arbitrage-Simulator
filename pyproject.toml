@@ -1,0 +1,112 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statistical-arbitrage-simulator"
+version = "1.0.0"
+description = "A Python framework for backtesting cointegration-based statistical arbitrage strategies"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "sidp24", email = "your-email@example.com"}
+]
+keywords = ["trading", "arbitrage", "backtesting", "cointegration", "statistics", "finance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.23.0",
+    "statsmodels>=0.13.0",
+    "matplotlib>=3.6.0",
+    "seaborn>=0.11.0",
+    "streamlit>=1.20.0",
+    "yfinance>=0.2.0",
+    "scipy>=1.9.0",
+    "plotly>=5.0.0",
+    "python-dotenv>=1.0.0",
+    "sqlalchemy>=2.0.0",
+    "bcrypt>=4.0.0",
+    "pyjwt>=2.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+notifications = [
+    "sendgrid>=6.0.0",
+    "twilio>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/sidp24/Statistical-Arbitrage-Simulator"
+Repository = "https://github.com/sidp24/Statistical-Arbitrage-Simulator"
+Documentation = "https://github.com/sidp24/Statistical-Arbitrage-Simulator#readme"
+Issues = "https://github.com/sidp24/Statistical-Arbitrage-Simulator/issues"
+
+[project.scripts]
+stat-arb = "main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+exclude = ["tests*", "docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --cov=. --cov-report=term-missing"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | __pycache__
+    | data
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = ["E501", "B008", "C901"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

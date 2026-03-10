@@ -1,103 +1,191 @@
 # Statistical Arbitrage Simulator
 
-A Python framework for backtesting cointegration-based statistical arbitrage strategies with enhanced features including realistic transaction costs, risk management, and parameter optimization.
+A Python framework for backtesting cointegration-based statistical arbitrage (pairs trading) strategies. Includes realistic transaction costs, risk management, paper trading, and parameter optimization.
 
 ## Features
 
-- **Strategy Development**: Cointegration testing and z-score based signals
+- **Strategy Development**: Cointegration testing and z-score based signal generation
 - **Transaction Costs**: Realistic commission, spread, and slippage modeling
 - **Risk Management**: Kelly criterion position sizing and portfolio controls
 - **Parameter Optimization**: Walk-forward analysis and out-of-sample testing
-- **Interactive Dashboard**: Streamlit-based web interface
+- **Paper Trading**: Simulated trading with real-time price tracking
+- **Alerts & Notifications**: Email notifications for trading signals
+- **Interactive Dashboard**: Streamlit-based web interface with Plotly charts
+- **Database Storage**: SQLite/PostgreSQL for storing backtests and trades
+- **Authentication**: Optional user authentication with JWT tokens
 
 ## Quick Start
 
-1. **Install Dependencies**: 
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 1. Clone and Install
 
-2. **Run the Application**: 
-   ```bash
-   # Method 1: Direct command
-   streamlit run app.py
-   
-   # Method 2: Using Python module
-   python -m streamlit run app.py
-   
-   # Method 3: Windows batch file (Windows only)
-   run_app.bat
-   ```
+```bash
+git clone https://github.com/sidp24/Statistical-Arbitrage-Simulator.git
+cd Statistical-Arbitrage-Simulator
 
-3. **Access the Dashboard**: Open your browser to `http://localhost:8501`
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
 
-4. **Run Analysis**: Use the sidebar to configure parameters and execute backtests
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Configure Environment
+
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit .env with your settings (optional)
+```
+
+### 3. Run the Application
+
+```bash
+streamlit run app.py
+```
+
+Access the dashboard at `http://localhost:8501`
+
+## Deployment
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f app
+```
+
+### Manual Deployment
+
+```bash
+# Install production dependencies
+pip install -r requirements.txt
+
+# Run with Streamlit
+streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+```
+
+### Environment Variables
+
+Key configuration options (set in `.env`):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | Database connection string | `sqlite:///data/arbitrage.db` |
+| `AUTH_ENABLED` | Enable user authentication | `false` |
+| `SECRET_KEY` | JWT secret key | (generate one) |
+| `SMTP_HOST` | Email server for notifications | - |
+| `LOG_LEVEL` | Logging level | `INFO` |
 
 ## Project Structure
 
 ```
 Statistical-Arbitrage-Simulator/
-├── app.py                         # Main Streamlit application
-├── main.py                        # Command-line interface
-├── config.py                      # Configuration settings
-├── requirements.txt               # Python dependencies
-├── run_app.bat                    # Windows launcher script
+├── app.py                    # Main Streamlit application
+├── config.py                 # Configuration (env-based)
+├── main.py                   # CLI interface
+├── requirements.txt          # Python dependencies
+├── pyproject.toml            # Package configuration
+├── Dockerfile                # Docker build file
+├── docker-compose.yml        # Docker orchestration
+├── .env.example              # Environment template
 │
-├── backtest/                      # Backtesting framework
-│   ├── backtester.py              # Basic backtesting engine
-│   └── enhanced_backtester.py     # Enhanced backtester with costs & risk
+├── auth/                     # Authentication module
+│   └── authentication.py     # JWT/bcrypt auth
 │
-├── trading/                       # Transaction cost modeling
-│   └── transaction_costs.py       # Cost simulation components
+├── backtest/                 # Backtesting framework
+│   ├── backtester.py         # Basic backtester
+│   └── enhanced_backtester.py # Enhanced with costs
 │
-├── risk/                          # Risk management
-│   └── risk_management.py         # Portfolio risk controls
+├── database/                 # Database layer
+│   ├── models.py             # SQLAlchemy models
+│   └── init.sql              # PostgreSQL schema
 │
-├── optimization/                  # Parameter optimization
-│   └── parameter_optimization.py  # Walk-forward analysis tools
+├── trading/                  # Trading modules
+│   ├── transaction_costs.py  # Cost modeling
+│   └── paper_trading.py      # Paper trading engine
 │
-├── data/                          # Data management
-│   ├── download_data.py           # Price data downloading
-│   └── signals/                   # Generated trading signals
+├── notifications/            # Alerts system
+│   └── alerts.py             # Email/webhook alerts
 │
-├── analysis/                      # Performance analysis
-│   └── metrics.py                 # Performance calculations
+├── risk/                     # Risk management
+│   └── risk_management.py    # Position sizing, VAR
 │
-├── pairs/                         # Pair identification
-│   └── find_pairs.py              # Cointegration testing
+├── tests/                    # Test suite
+│   ├── conftest.py           # Pytest fixtures
+│   ├── test_backtester.py    # Backtester tests
+│   └── ...
 │
-└── signals/                       # Signal generation
-    └── zscore_signal.py           # Z-score signal calculation
+└── .github/workflows/        # CI/CD
+    └── ci.yml                # GitHub Actions
 ```
 
 ## Usage Examples
 
 ### Basic Backtesting
+
 ```python
 from backtest.enhanced_backtester import EnhancedPairTradingBacktester
 
-# Run basic backtest
-backtester = EnhancedPairTradingBacktester(
-    path_to_signals="data/signals/AAPL_MSFT_signals.csv",
-    entry_z=1.5,
-    exit_z=0.5,
-    initial_capital=100000
-)
-
-results = backtester.backtest()
-```
-
-### Enhanced Features
-```python
-# Enable transaction costs and risk management
 backtester = EnhancedPairTradingBacktester(
     path_to_signals="data/signals/AAPL_MSFT_signals.csv",
     entry_z=1.5,
     exit_z=0.5,
     initial_capital=100000,
-    tickers=('AAPL', 'MSFT'),
     enable_costs=True,
     enable_risk_management=True
+)
+
+results = backtester.backtest()
+print(f"Total Return: {results['total_return']:.2%}")
+```
+
+### Paper Trading
+
+```python
+from trading.paper_trading import PaperTradingEngine
+
+engine = PaperTradingEngine(initial_capital=100000)
+
+# Open a position
+position = engine.open_position("AAPL", "MSFT", "long_spread", 10000)
+
+# Check for exit signals
+exit_signals = engine.check_exit_signals()
+
+# Get portfolio summary
+summary = engine.get_portfolio_summary()
+```
+
+## Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=. --cov-report=html
+
+# Run specific test file
+pytest tests/test_backtester.py -v
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make changes and add tests
+4. Run tests: `pytest tests/`
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.
 )
 
 results = backtester.backtest()
