@@ -138,7 +138,7 @@ elif page == "Testing & Validation":
                 
                 # Generate synthetic pair data
                 price_changes = np.random.normal(0, 0.015, len(dates))
-                spread = np.cumsum(price_changes)
+                spread = pd.Series(np.cumsum(price_changes), index=dates)
                 spread = spread - spread.rolling(window=20, min_periods=1).mean()
                 
                 zscore_window = 15
@@ -257,6 +257,46 @@ else:  # Backtesting page
                 st.session_state['pairs'] = []
                 st.session_state['results'] = {}
                 st.error("No cointegrated pairs found with the current parameters.")
+                
+                # Provide helpful guidance
+                with st.expander("Why did this happen? Click for tips", expanded=True):
+                    st.markdown("""
+                    ### Common Reasons for No Cointegrated Pairs
+                    
+                    **1. Wrong Ticker Selection**
+                    - Cointegration works best with **similar companies** in the same sector
+                    - Random stocks rarely exhibit cointegration
+                    
+                    **2. Time Period Issues**
+                    - Too short: Need at least 1-2 years of data for reliable cointegration tests
+                    - Market regime changes can break historical relationships
+                    
+                    **3. P-value Threshold Too Strict**
+                    - Default is 0.05 (5%). Try adjusting in config.py if needed
+                    
+                    ---
+                    ### Recommended Ticker Combinations
+                    
+                    Try these pairs that often show cointegration:
+                    
+                    | Sector | Tickers | Why They Work |
+                    |--------|---------|---------------|
+                    | **Tech Giants** | MSFT, GOOGL | Similar business models, correlated earnings |
+                    | **Banks** | JPM, BAC, GS | Same sector, similar macro exposure |
+                    | **Oil & Gas** | XOM, CVX | Commodity-driven, similar operations |
+                    | **Airlines** | DAL, UAL, AAL | Same industry dynamics |
+                    | **Retail** | WMT, TGT, COST | Consumer staples, similar cycles |
+                    | **Semiconductors** | AMD, NVDA, INTC | Tech hardware correlation |
+                    
+                    ---
+                    ### Quick Fix Checklist
+                    
+                    1. **Select 4-6 tickers from the SAME sector**
+                    2. **Use at least 2 years of historical data**
+                    3. **Try different combinations** - not all sector pairs cointegrate
+                    
+                    **Example:** Select `AAPL, MSFT, GOOGL, META` with dates `2022-01-01` to `2024-01-01`
+                    """)
             else:
                 results = {}
                 for t1, t2, pval in pairs:

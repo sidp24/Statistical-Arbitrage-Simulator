@@ -19,6 +19,29 @@ def main():
 
     if not pairs:
         print("No cointegrated pairs found.")
+        print("\n" + "="*60)
+        print("[INFO] WHY THIS HAPPENED & HOW TO FIX IT")
+        print("="*60)
+        print("""
+[ANALYSIS] Common Reasons:
+   1. Tickers not in the same sector (random stocks rarely cointegrate)
+   2. Time period too short (need 1-2+ years of data)
+   3. Market regime change broke historical relationships
+
+[RECOMMENDED] Ticker Combinations:
+   - Tech:          MSFT, GOOGL, AAPL, META
+   - Banks:         JPM, BAC, GS, C
+   - Oil & Gas:     XOM, CVX, COP
+   - Airlines:      DAL, UAL, AAL
+   - Retail:        WMT, TGT, COST
+   - Semiconductors: AMD, NVDA, INTC
+
+[ACTION] Quick Fix:
+   1. Edit config.py and change TICKERS to stocks in the SAME sector
+   2. Use at least 2 years of data (START_DATE to END_DATE)
+   3. Example: TICKERS = ['JPM', 'BAC', 'GS', 'C']
+""")
+        print("="*60)
         return
 
     all_trades = []
