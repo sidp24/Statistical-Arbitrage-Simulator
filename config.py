@@ -1,12 +1,27 @@
 """
 Configuration settings for Statistical Arbitrage Simulator
-All sensitive values loaded from environment variables
+All sensitive values loaded from environment variables.
+Streamlit Cloud secrets are automatically exposed as environment variables.
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Get the base directory (where this config file is located)
+BASE_DIR = Path(__file__).resolve().parent
+
+# Ensure data directory exists
+DATA_DIR = BASE_DIR / "data"
+try:
+    DATA_DIR.mkdir(exist_ok=True)
+except PermissionError:
+    # On some cloud platforms, use a temp directory
+    import tempfile
+    DATA_DIR = Path(tempfile.gettempdir()) / "stat_arb_data"
+    DATA_DIR.mkdir(exist_ok=True)
 
 # Data settings
 TICKERS = os.getenv('TICKERS', 'AAPL,MSFT,GOOGL,AMZN,META,JPM,V,UNH,NVDA,HD').split(',')
@@ -24,15 +39,16 @@ ENTRY_Z = float(os.getenv('ENTRY_Z', '1.0'))
 EXIT_Z = float(os.getenv('EXIT_Z', '0.5'))
 INITIAL_CAPITAL = float(os.getenv('INITIAL_CAPITAL', '10000'))
 
-# File paths
-PRICE_DATA_PATH = os.getenv('PRICE_DATA_PATH', 'data/price_data.csv')
-ZSCORE_OUTPUT_PATH = os.getenv('ZSCORE_OUTPUT_PATH', 'data/zscore_signals.csv')
+# File paths (use absolute paths for cloud compatibility)
+PRICE_DATA_PATH = os.getenv('PRICE_DATA_PATH', str(DATA_DIR / 'price_data.csv'))
+ZSCORE_OUTPUT_PATH = os.getenv('ZSCORE_OUTPUT_PATH', str(DATA_DIR / 'zscore_signals.csv'))
 
 # API Keys (loaded from environment - NEVER commit actual keys)
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 
-# Database settings
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///data/arbitrage.db')
+# Database settings (use absolute path for cloud compatibility)
+_default_db_path = f"sqlite:///{DATA_DIR / 'arbitrage.db'}"
+DATABASE_URL = os.getenv('DATABASE_URL', _default_db_path)
 
 # Authentication settings
 AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'false').lower() == 'true'

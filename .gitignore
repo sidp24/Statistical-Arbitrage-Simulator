@@ -37,6 +37,7 @@ env/
 .env
 .env.local
 .env.*.local
+.streamlit/secrets.toml
 
 # Data (large files)
 data/*.csv

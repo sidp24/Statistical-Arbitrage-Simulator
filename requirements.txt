@@ -25,17 +25,7 @@ sqlalchemy>=2.0.0
 
 # Authentication
 bcrypt>=4.0.0
-pyjwt>=2.8.0
+PyJWT>=2.8.0
 
-# Development/Testing (install with: pip install -r requirements.txt[dev])
-# pytest>=7.0.0
-# pytest-cov>=4.0.0
-# black>=23.0.0
-# ruff>=0.1.0
-# mypy>=1.0.0
-# pre-commit>=3.0.0
-
-# Optional: Notifications
-# sendgrid>=6.0.0
-# twilio>=8.0.0
-
+# Additional dependencies for cloud
+watchdog>=3.0.0

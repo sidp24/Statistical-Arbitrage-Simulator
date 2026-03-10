@@ -34,30 +34,30 @@ from backtest.backtester import PairTradingBacktester
 from backtest.enhanced_backtester import EnhancedPairTradingBacktester
 from analysis.metrics import sharpe_ratio, max_drawdown
 
-# Try to import enhanced features
+# Try to import enhanced features with robust error handling
 try:
     from trading.paper_trading import PaperTradingEngine, paper_trading_engine
     PAPER_TRADING_AVAILABLE = True
-except ImportError:
+except Exception:
     PAPER_TRADING_AVAILABLE = False
 
 try:
     from database.models import init_db, get_db, BacktestRepository
     DATABASE_AVAILABLE = True
     init_db()
-except ImportError:
+except Exception:
     DATABASE_AVAILABLE = False
 
 try:
     from auth.authentication import init_session_state, show_login_form, logout, auth_service
     AUTH_AVAILABLE = True
-except ImportError:
+except Exception:
     AUTH_AVAILABLE = False
 
 try:
     from notifications.alerts import alert_manager, email_notifier
     NOTIFICATIONS_AVAILABLE = True
-except ImportError:
+except Exception:
     NOTIFICATIONS_AVAILABLE = False
 
 # Page configuration
@@ -253,8 +253,11 @@ def run_backtest(tickers, start_date, end_date, entry_z, exit_z,
                  initial_capital):
     """Execute the backtest with given parameters."""
     with st.spinner("Running backtest..."):
-        os.makedirs("data", exist_ok=True)
-        os.makedirs("data/signals", exist_ok=True)
+        # Use absolute paths from config
+        data_dir = DATA_DIR if 'DATA_DIR' in dir() else os.path.join(os.path.dirname(__file__), 'data')
+        signals_dir = os.path.join(data_dir, 'signals')
+        os.makedirs(data_dir, exist_ok=True)
+        os.makedirs(signals_dir, exist_ok=True)
         
         # Get price data
         try:
@@ -295,7 +298,7 @@ def run_backtest(tickers, start_date, end_date, entry_z, exit_z,
                 s1, s2, window=zscore_window, ticker1=t1, ticker2=t2
             )
             
-            temp_path = f"data/signals/{t1}_{t2}_signals.csv"
+            temp_path = os.path.join(signals_dir, f"{t1}_{t2}_signals.csv")
             df.to_csv(temp_path)
             
             if use_enhanced:
