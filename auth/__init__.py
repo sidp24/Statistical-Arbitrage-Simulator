@@ -1,4 +1,3 @@
-"""Authentication package initialization."""
 from auth.authentication import (
     AuthService,
     AuthenticationError,

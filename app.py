@@ -1,8 +1,3 @@
-"""
-Statistical Arbitrage Simulator - Main Application
-
-Web application for backtesting cointegration-based statistical arbitrage strategies.
-"""
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -102,7 +97,6 @@ st.markdown("""
 # ============================================================================
 
 def plot_cumulative_pnl_plotly(pnl_series):
-    """Create interactive cumulative PnL chart using Plotly."""
     cumulative = pnl_series.cumsum()
     
     fig = go.Figure()
@@ -128,7 +122,6 @@ def plot_cumulative_pnl_plotly(pnl_series):
 
 
 def plot_spread_zscore_plotly(df):
-    """Create interactive spread and z-score chart using Plotly."""
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
                        vertical_spacing=0.1,
                        subplot_titles=('Spread', 'Z-Score'))
@@ -166,7 +159,6 @@ def plot_spread_zscore_plotly(df):
 
 
 def create_performance_dashboard(results):
-    """Create a performance summary dashboard."""
     metrics = results.get('performance_metrics', {})
     
     col1, col2, col3, col4 = st.columns(4)
@@ -251,7 +243,6 @@ def page_backtesting():
 def run_backtest(tickers, start_date, end_date, entry_z, exit_z,
                  zscore_window, use_enhanced, enable_costs, enable_risk,
                  initial_capital):
-    """Execute the backtest with given parameters."""
     with st.spinner("Running backtest..."):
         # Use absolute paths from config
         data_dir = DATA_DIR if 'DATA_DIR' in dir() else os.path.join(os.path.dirname(__file__), 'data')
@@ -347,7 +338,6 @@ def run_backtest(tickers, start_date, end_date, entry_z, exit_z,
 
 
 def display_backtest_results():
-    """Display backtest results with interactive charts."""
     if 'pairs' not in st.session_state or not st.session_state['pairs']:
         st.info("Configure parameters in the sidebar and click 'Run Backtest' to begin.")
         return
@@ -415,7 +405,6 @@ def display_backtest_results():
 
 
 def show_cointegration_help():
-    """Show help for cointegration failures."""
     with st.expander("Why no pairs found? Click for tips", expanded=True):
         st.markdown("""
         ### Common Reasons
@@ -619,7 +608,6 @@ def page_configuration():
 
 
 def run_system_tests():
-    """Run system component tests."""
     test_results = {}
     
     # Test imports

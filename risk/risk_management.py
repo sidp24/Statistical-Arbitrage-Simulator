@@ -1,14 +1,3 @@
-"""
-Enhanced Risk Management for Statistical Arbitrage Portfolio
-
-This module implements risk management including:
-- Portfolio-level risk controls
-- Position sizing using Kelly criterion and volatility targeting
-- Correlation limits and sector concentration limits
-- Dynamic risk adjustment
-- VaR and CVaR calculations
-"""
-
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Optional

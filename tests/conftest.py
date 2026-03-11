@@ -1,6 +1,3 @@
-"""
-Pytest configuration and fixtures for Statistical Arbitrage Simulator tests
-"""
 import pytest
 import pandas as pd
 import numpy as np
@@ -14,7 +11,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 @pytest.fixture
 def sample_price_data():
-    """Generate sample price data for two cointegrated stocks."""
     np.random.seed(42)
     n = 500
     dates = pd.date_range('2022-01-01', periods=n, freq='D')
@@ -33,7 +29,6 @@ def sample_price_data():
 
 @pytest.fixture
 def sample_signal_data():
-    """Generate sample signal data with spread and z-score."""
     np.random.seed(42)
     dates = pd.date_range('2023-01-01', '2023-06-30', freq='D')
     
@@ -56,7 +51,6 @@ def sample_signal_data():
 
 @pytest.fixture
 def sample_trades():
-    """Generate sample trade data."""
     return pd.DataFrame({
         'entry_date': pd.date_range('2023-01-01', periods=10, freq='15D'),
         'exit_date': pd.date_range('2023-01-10', periods=10, freq='15D'),
@@ -69,7 +63,6 @@ def sample_trades():
 
 @pytest.fixture
 def temp_data_dir(tmp_path):
-    """Create a temporary data directory."""
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     signals_dir = data_dir / "signals"
@@ -79,5 +72,4 @@ def temp_data_dir(tmp_path):
 
 @pytest.fixture(scope="session")
 def database_url():
-    """Provide test database URL."""
     return "sqlite:///:memory:"

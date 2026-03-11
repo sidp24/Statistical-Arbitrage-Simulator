@@ -1,9 +1,3 @@
-"""
-Logging Configuration for Statistical Arbitrage Simulator
-
-Provides structured logging with file and console output,
-with support for different log levels and formats.
-"""
 import logging
 import sys
 from datetime import datetime
@@ -18,17 +12,6 @@ def setup_logger(
     log_file: Optional[str] = None,
     level: Optional[str] = None
 ) -> logging.Logger:
-    """
-    Set up and return a configured logger.
-    
-    Args:
-        name: Logger name
-        log_file: Optional file path for log output
-        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-    
-    Returns:
-        Configured logger instance
-    """
     logger = logging.getLogger(name)
     
     # Avoid duplicate handlers
@@ -71,7 +54,6 @@ def setup_logger(
 
 
 def get_logger(name: str = "stat_arb") -> logging.Logger:
-    """Get or create a logger with the given name."""
     return logging.getLogger(name)
 
 
@@ -83,38 +65,31 @@ logger = setup_logger(
 
 
 class TradingLogger:
-    """Specialized logger for trading operations with structured output."""
-    
     def __init__(self, name: str = "trading"):
         self.logger = setup_logger(f"stat_arb.{name}")
     
     def trade_entry(self, pair: str, direction: str, size: float, price: float):
-        """Log trade entry."""
         self.logger.info(
             f"TRADE ENTRY | Pair: {pair} | Direction: {direction} | "
             f"Size: {size:.2f} | Price: {price:.4f}"
         )
     
     def trade_exit(self, pair: str, pnl: float, duration_days: int):
-        """Log trade exit."""
         pnl_str = f"+${pnl:.2f}" if pnl >= 0 else f"-${abs(pnl):.2f}"
         self.logger.info(
             f"TRADE EXIT | Pair: {pair} | PnL: {pnl_str} | Duration: {duration_days} days"
         )
     
     def signal(self, pair: str, zscore: float, action: str):
-        """Log trading signal."""
         self.logger.debug(
             f"SIGNAL | Pair: {pair} | Z-Score: {zscore:.3f} | Action: {action}"
         )
     
     def risk_alert(self, message: str, level: str = "WARNING"):
-        """Log risk management alert."""
         log_func = getattr(self.logger, level.lower(), self.logger.warning)
         log_func(f"RISK ALERT | {message}")
     
     def backtest_result(self, pair: str, total_return: float, sharpe: float, trades: int):
-        """Log backtest results."""
         self.logger.info(
             f"BACKTEST | Pair: {pair} | Return: {total_return:.2%} | "
             f"Sharpe: {sharpe:.3f} | Trades: {trades}"

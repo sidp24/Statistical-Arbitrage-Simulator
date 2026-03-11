@@ -1,6 +1,3 @@
-"""
-Tests for the backtesting module
-"""
 import pytest
 import pandas as pd
 import numpy as np
@@ -10,11 +7,8 @@ from backtest.enhanced_backtester import EnhancedPairTradingBacktester
 
 
 class TestEnhancedBacktester:
-    """Test suite for EnhancedPairTradingBacktester."""
-    
     @pytest.fixture
     def sample_signal_data(self):
-        """Create sample signal data for testing."""
         dates = pd.date_range('2023-01-01', '2023-06-30', freq='D')
         np.random.seed(42)
         
@@ -35,7 +29,6 @@ class TestEnhancedBacktester:
         }, index=dates)
     
     def test_backtest_basic(self, sample_signal_data):
-        """Test basic backtesting functionality."""
         backtester = EnhancedPairTradingBacktester(
             signal_data=sample_signal_data,
             entry_z=1.5,
@@ -52,7 +45,6 @@ class TestEnhancedBacktester:
         assert isinstance(results['trades'], list)
     
     def test_backtest_with_costs(self, sample_signal_data):
-        """Test backtesting with transaction costs enabled."""
         backtester = EnhancedPairTradingBacktester(
             signal_data=sample_signal_data,
             entry_z=1.5,
@@ -71,7 +63,6 @@ class TestEnhancedBacktester:
             assert 'total_costs' in results.get('performance_metrics', {}) or True
     
     def test_backtest_with_risk_management(self, sample_signal_data):
-        """Test backtesting with risk management enabled."""
         backtester = EnhancedPairTradingBacktester(
             signal_data=sample_signal_data,
             entry_z=1.5,
@@ -87,7 +78,6 @@ class TestEnhancedBacktester:
         assert 'trades' in results
     
     def test_insufficient_data(self):
-        """Test handling of insufficient data."""
         small_data = pd.DataFrame({
             'spread': [0.1, 0.2, 0.3],
             'zscore': [0.5, 1.0, 0.3]
@@ -105,7 +95,6 @@ class TestEnhancedBacktester:
         assert 'error' in results or len(results.get('trades', [])) == 0
     
     def test_no_signals(self, sample_signal_data):
-        """Test when no trading signals are generated."""
         # Use very high entry threshold
         backtester = EnhancedPairTradingBacktester(
             signal_data=sample_signal_data,
@@ -120,10 +109,7 @@ class TestEnhancedBacktester:
 
 
 class TestBacktesterParameters:
-    """Test parameter validation and edge cases."""
-    
     def test_invalid_entry_exit_thresholds(self):
-        """Test that exit_z must be less than entry_z."""
         data = pd.DataFrame({
             'spread': [0.1] * 100,
             'zscore': [0.0] * 100
@@ -141,7 +127,6 @@ class TestBacktesterParameters:
         assert 'trades' in results
     
     def test_zero_capital(self):
-        """Test handling of zero initial capital."""
         data = pd.DataFrame({
             'spread': [0.1] * 100,
             'zscore': [2.0] * 100

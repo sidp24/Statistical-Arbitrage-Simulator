@@ -1,4 +1,3 @@
-"""Database package initialization."""
 from database.models import (
     init_db,
     get_db,

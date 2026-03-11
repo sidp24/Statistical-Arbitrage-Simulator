@@ -1,8 +1,3 @@
-"""
-Database Models and ORM Layer for Statistical Arbitrage Simulator
-
-Uses SQLAlchemy for database abstraction with support for SQLite and PostgreSQL.
-"""
 import os
 from datetime import datetime
 from typing import Optional, List
@@ -21,7 +16,6 @@ Base = declarative_base()
 
 @contextmanager
 def get_db() -> Session:
-    """Context manager for database sessions."""
     db = SessionLocal()
     try:
         yield db
@@ -34,7 +28,6 @@ def get_db() -> Session:
 
 
 class User(Base):
-    """User model for authentication."""
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -53,7 +46,6 @@ class User(Base):
 
 
 class BacktestResult(Base):
-    """Store backtest results for historical analysis."""
     __tablename__ = "backtest_results"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -91,7 +83,6 @@ class BacktestResult(Base):
 
 
 class Trade(Base):
-    """Individual trade records."""
     __tablename__ = "trades"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -117,7 +108,6 @@ class Trade(Base):
 
 
 class PaperTrade(Base):
-    """Paper trading positions for simulation."""
     __tablename__ = "paper_trades"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -157,7 +147,6 @@ class PaperTrade(Base):
 
 
 class Alert(Base):
-    """Trading alerts and notifications."""
     __tablename__ = "alerts"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -184,7 +173,6 @@ class Alert(Base):
 
 
 class WatchlistItem(Base):
-    """User watchlist for pair monitoring."""
     __tablename__ = "watchlist"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -202,19 +190,15 @@ class WatchlistItem(Base):
 
 
 def init_db():
-    """Initialize database tables."""
     Base.metadata.create_all(bind=engine)
 
 
 def drop_db():
-    """Drop all database tables (use with caution!)."""
     Base.metadata.drop_all(bind=engine)
 
 
 # Repository classes for CRUD operations
 class BacktestRepository:
-    """Repository for backtest operations."""
-    
     @staticmethod
     def save_backtest(
         db: Session,
@@ -225,7 +209,6 @@ class BacktestRepository:
         results: dict,
         user_id: Optional[int] = None
     ) -> BacktestResult:
-        """Save a backtest result to the database."""
         backtest = BacktestResult(
             user_id=user_id,
             pair=pair,
@@ -252,20 +235,16 @@ class BacktestRepository:
     
     @staticmethod
     def get_user_backtests(db: Session, user_id: int, limit: int = 50) -> List[BacktestResult]:
-        """Get recent backtests for a user."""
         return db.query(BacktestResult).filter(
             BacktestResult.user_id == user_id
         ).order_by(BacktestResult.created_at.desc()).limit(limit).all()
     
     @staticmethod
     def get_backtest_by_id(db: Session, backtest_id: int) -> Optional[BacktestResult]:
-        """Get a specific backtest by ID."""
         return db.query(BacktestResult).filter(BacktestResult.id == backtest_id).first()
 
 
 class AlertRepository:
-    """Repository for alert operations."""
-    
     @staticmethod
     def create_alert(
         db: Session,
@@ -276,7 +255,6 @@ class AlertRepository:
         threshold: float,
         notification_method: str = "email"
     ) -> Alert:
-        """Create a new alert."""
         alert = Alert(
             user_id=user_id,
             pair=pair,
@@ -291,7 +269,6 @@ class AlertRepository:
     
     @staticmethod
     def get_active_alerts(db: Session, user_id: Optional[int] = None) -> List[Alert]:
-        """Get all active alerts."""
         query = db.query(Alert).filter(Alert.is_active == True)
         if user_id:
             query = query.filter(Alert.user_id == user_id)
@@ -299,7 +276,6 @@ class AlertRepository:
     
     @staticmethod
     def trigger_alert(db: Session, alert_id: int) -> Optional[Alert]:
-        """Mark an alert as triggered."""
         alert = db.query(Alert).filter(Alert.id == alert_id).first()
         if alert:
             alert.is_triggered = True

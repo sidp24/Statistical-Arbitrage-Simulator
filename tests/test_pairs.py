@@ -1,6 +1,3 @@
-"""
-Tests for the cointegration pair finding module
-"""
 import pytest
 import pandas as pd
 import numpy as np
@@ -9,11 +6,8 @@ from pairs.find_pairs import find_cointegrated_pairs
 
 
 class TestFindPairs:
-    """Test suite for cointegration pair finding."""
-    
     @pytest.fixture
     def cointegrated_data(self):
-        """Create synthetic cointegrated price data."""
         np.random.seed(42)
         n = 500
         
@@ -36,7 +30,6 @@ class TestFindPairs:
         }, index=dates)
     
     def test_find_cointegrated_pairs(self, cointegrated_data):
-        """Test that cointegrated pairs are found."""
         pairs, pvals = find_cointegrated_pairs(cointegrated_data, significance=0.05)
         
         assert isinstance(pairs, list)
@@ -45,7 +38,6 @@ class TestFindPairs:
         # (though this is probabilistic)
     
     def test_find_pairs_returns_pvalues(self, cointegrated_data):
-        """Test that p-values matrix is returned correctly."""
         pairs, pvals = find_cointegrated_pairs(cointegrated_data, significance=0.05)
         
         # P-values should be a square matrix
@@ -57,7 +49,6 @@ class TestFindPairs:
             assert pvals[i, i] == 1.0
     
     def test_significance_threshold(self, cointegrated_data):
-        """Test that significance threshold affects results."""
         # Very strict threshold
         pairs_strict, _ = find_cointegrated_pairs(cointegrated_data, significance=0.001)
         
@@ -68,7 +59,6 @@ class TestFindPairs:
         assert len(pairs_lenient) >= len(pairs_strict)
     
     def test_empty_dataframe(self):
-        """Test handling of empty dataframe."""
         empty_df = pd.DataFrame()
         
         pairs, pvals = find_cointegrated_pairs(empty_df, significance=0.05)
@@ -76,7 +66,6 @@ class TestFindPairs:
         assert pairs == []
     
     def test_single_asset(self):
-        """Test handling of single asset."""
         single_asset = pd.DataFrame({
             'SINGLE': np.random.randn(100)
         })
@@ -86,7 +75,6 @@ class TestFindPairs:
         assert pairs == []
     
     def test_pair_tuple_structure(self, cointegrated_data):
-        """Test that returned pairs have correct structure."""
         pairs, _ = find_cointegrated_pairs(cointegrated_data, significance=0.50)  # Lenient
         
         for pair in pairs:
@@ -98,10 +86,7 @@ class TestFindPairs:
 
 
 class TestFindPairsEdgeCases:
-    """Test edge cases for pair finding."""
-    
     def test_missing_values(self):
-        """Test handling of missing values."""
         data = pd.DataFrame({
             'A': [1, 2, np.nan, 4, 5] * 20,
             'B': [2, 4, 6, np.nan, 10] * 20
@@ -112,7 +97,6 @@ class TestFindPairsEdgeCases:
         assert isinstance(pairs, list)
     
     def test_constant_series(self):
-        """Test handling of constant price series."""
         data = pd.DataFrame({
             'CONSTANT': [100.0] * 100,
             'VARIABLE': np.random.randn(100) + 100

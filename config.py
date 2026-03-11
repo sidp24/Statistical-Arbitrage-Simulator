@@ -1,8 +1,3 @@
-"""
-Configuration settings for Statistical Arbitrage Simulator
-All sensitive values loaded from environment variables.
-Streamlit Cloud secrets are automatically exposed as environment variables.
-"""
 import os
 from pathlib import Path
 from dotenv import load_dotenv

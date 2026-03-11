@@ -1,8 +1,3 @@
-"""
-Notification and Alert System for Statistical Arbitrage Simulator
-
-Supports email notifications for trading signals and alerts.
-"""
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -16,8 +11,7 @@ from utils.logging_config import logger
 
 
 class EmailNotifier:
-    """Send email notifications for trading alerts."""
-    
+
     def __init__(
         self,
         smtp_host: str = SMTP_HOST,
@@ -38,7 +32,6 @@ class EmailNotifier:
         body: str,
         html_body: Optional[str] = None
     ) -> bool:
-        """Send an email notification."""
         if not self.enabled:
             logger.warning("Email notifications not configured")
             return False
@@ -76,7 +69,6 @@ class EmailNotifier:
         zscore: float,
         action: str
     ) -> bool:
-        """Send a trading signal alert."""
         subject = f"[Stat Arb] {signal_type.upper()} Signal: {pair}"
         
         body = f"""
@@ -142,7 +134,6 @@ This is an automated alert from Statistical Arbitrage Simulator.
         pair: str,
         results: Dict
     ) -> bool:
-        """Send backtest results report."""
         subject = f"[Stat Arb] Backtest Results: {pair}"
         
         body = f"""
@@ -163,14 +154,12 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 
 class AlertManager:
-    """Manage and monitor trading alerts."""
-    
+
     def __init__(self, notifier: Optional[EmailNotifier] = None):
         self.notifier = notifier or EmailNotifier()
         self.active_alerts: List[Alert] = []
     
     def load_alerts(self, user_id: Optional[int] = None):
-        """Load active alerts from database."""
         with get_db() as db:
             self.active_alerts = AlertRepository.get_active_alerts(db, user_id)
     
@@ -183,7 +172,6 @@ class AlertManager:
         threshold: float,
         notification_method: str = "email"
     ) -> Alert:
-        """Create a new alert."""
         with get_db() as db:
             alert = AlertRepository.create_alert(
                 db, user_id, pair, alert_type, condition, threshold, notification_method
@@ -193,15 +181,6 @@ class AlertManager:
             return alert
     
     def check_alerts(self, current_data: Dict[str, float]) -> List[Dict]:
-        """
-        Check all active alerts against current data.
-        
-        Args:
-            current_data: Dict mapping pair names to current z-scores
-        
-        Returns:
-            List of triggered alerts
-        """
         triggered = []
         
         for alert in self.active_alerts:
@@ -240,7 +219,6 @@ class AlertManager:
         return triggered
     
     def _send_notification(self, alert: Alert, current_value: float):
-        """Send notification for triggered alert."""
         if alert.notification_method == "email" and NOTIFICATION_EMAIL:
             action = f"Z-Score {alert.condition} {alert.threshold:.2f} (current: {current_value:.2f})"
             self.notifier.send_signal_alert(
@@ -255,13 +233,11 @@ class AlertManager:
 
 # Webhook support for external integrations
 class WebhookNotifier:
-    """Send notifications via webhooks (Discord, Slack, etc.)."""
-    
+
     def __init__(self, webhook_url: Optional[str] = None):
         self.webhook_url = webhook_url
     
     def send_discord(self, message: str, embed: Optional[Dict] = None) -> bool:
-        """Send a Discord webhook notification."""
         if not self.webhook_url:
             return False
         
@@ -280,7 +256,6 @@ class WebhookNotifier:
             return False
     
     def send_slack(self, message: str, blocks: Optional[List] = None) -> bool:
-        """Send a Slack webhook notification."""
         if not self.webhook_url:
             return False
         

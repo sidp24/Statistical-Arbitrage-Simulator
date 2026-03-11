@@ -24,7 +24,6 @@ def download_prices(tickers, start="2022-01-01", end="2024-01-01", save_path="da
     print(f"Saved {len(price_df.columns)} assets to {save_path}")
 
 def create_sample_data(tickers, start="2022-01-01", end="2024-01-01", save_path="data/price_data.csv"):
-    """Create sample data for demonstration when yfinance is not available"""
     import numpy as np
     
     date_range = pd.date_range(start=start, end=end, freq='D')

@@ -1,4 +1,3 @@
-"""Notifications package initialization."""
 from notifications.alerts import (
     EmailNotifier,
     AlertManager,

@@ -1,8 +1,3 @@
-"""
-Paper Trading System for Statistical Arbitrage Simulator
-
-Provides simulated trading functionality with real-time price tracking.
-"""
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -21,7 +16,6 @@ from utils.logging_config import trading_logger
 
 @dataclass
 class Position:
-    """Represents an open paper trading position."""
     pair: str
     ticker1: str
     ticker2: str
@@ -43,16 +37,6 @@ class Position:
 
 
 class PaperTradingEngine:
-    """
-    Paper trading engine for simulating pair trading strategies.
-    
-    Features:
-    - Real-time price updates (when yfinance available)
-    - Position tracking and P&L calculation
-    - Automatic signal generation
-    - Trade history and analysis
-    """
-    
     def __init__(
         self,
         initial_capital: float = 100000,
@@ -75,7 +59,6 @@ class PaperTradingEngine:
         self.trade_history: List[Dict] = []
     
     def get_current_prices(self, ticker1: str, ticker2: str) -> Tuple[float, float]:
-        """Get current prices for a pair."""
         if not YF_AVAILABLE:
             # Return dummy prices for demo
             return 100.0, 100.0
@@ -92,12 +75,6 @@ class PaperTradingEngine:
         return 0.0, 0.0
     
     def calculate_zscore(self, ticker1: str, ticker2: str) -> Tuple[float, float, float]:
-        """
-        Calculate current z-score for a pair.
-        
-        Returns:
-            Tuple of (zscore, spread, hedge_ratio)
-        """
         if not YF_AVAILABLE:
             return 0.0, 0.0, 1.0
         
@@ -139,12 +116,6 @@ class PaperTradingEngine:
             return 0.0, 0.0, 1.0
     
     def check_entry_signals(self, watchlist: List[Tuple[str, str]]) -> List[Dict]:
-        """
-        Check for entry signals on watchlist pairs.
-        
-        Returns:
-            List of signal dictionaries with entry recommendations
-        """
         signals = []
         
         for ticker1, ticker2 in watchlist:
@@ -182,12 +153,6 @@ class PaperTradingEngine:
         return signals
     
     def check_exit_signals(self) -> List[Dict]:
-        """
-        Check for exit signals on open positions.
-        
-        Returns:
-            List of positions that should be closed
-        """
         exit_signals = []
         
         for pair_key, position in self.positions.items():
@@ -231,7 +196,6 @@ class PaperTradingEngine:
         direction: str,
         position_size: Optional[float] = None
     ) -> Position:
-        """Open a new paper trading position."""
         pair_key = f"{ticker1}_{ticker2}"
         
         if pair_key in self.positions:
@@ -273,7 +237,6 @@ class PaperTradingEngine:
         return position
     
     def close_position(self, pair_key: str) -> Dict:
-        """Close an existing position."""
         if pair_key not in self.positions:
             raise ValueError(f"No position found for {pair_key}")
         
@@ -328,7 +291,6 @@ class PaperTradingEngine:
         return trade_record
     
     def update_positions(self):
-        """Update all open positions with current prices."""
         for pair_key, position in self.positions.items():
             price1, price2 = self.get_current_prices(position.ticker1, position.ticker2)
             zscore, _, _ = self.calculate_zscore(position.ticker1, position.ticker2)
@@ -349,7 +311,6 @@ class PaperTradingEngine:
             position.unrealized_pnl = position.position_size * total_pnl_pct
     
     def get_portfolio_summary(self) -> Dict:
-        """Get current portfolio summary."""
         self.update_positions()
         
         total_unrealized = sum(p.unrealized_pnl for p in self.positions.values())
@@ -369,7 +330,6 @@ class PaperTradingEngine:
         }
     
     def save_to_database(self, user_id: int):
-        """Save paper trading state to database."""
         with get_db() as db:
             # Save open positions
             for pair_key, position in self.positions.items():

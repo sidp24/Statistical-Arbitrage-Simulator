@@ -1,8 +1,3 @@
-"""
-Authentication System for Statistical Arbitrage Simulator
-
-Provides user authentication with bcrypt password hashing and JWT tokens.
-"""
 import os
 import hashlib
 import secrets
@@ -17,35 +12,27 @@ from database.models import User, get_db, Session
 
 
 class AuthenticationError(Exception):
-    """Custom exception for authentication errors."""
     pass
 
 
 class PasswordHasher:
-    """Secure password hashing using bcrypt."""
-    
     @staticmethod
     def hash_password(password: str) -> str:
-        """Hash a password using bcrypt."""
         salt = bcrypt.gensalt(rounds=12)
         return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
     
     @staticmethod
     def verify_password(password: str, hashed: str) -> bool:
-        """Verify a password against its hash."""
         return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 
 class TokenManager:
-    """JWT token management for session handling."""
-    
     def __init__(self, secret_key: str = SECRET_KEY, expiry_hours: int = 24):
         self.secret_key = secret_key
         self.expiry_hours = expiry_hours
         self.algorithm = "HS256"
     
     def create_token(self, user_id: int, email: str) -> str:
-        """Create a JWT token for a user."""
         payload = {
             "user_id": user_id,
             "email": email,
@@ -55,7 +42,6 @@ class TokenManager:
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
     def verify_token(self, token: str) -> Optional[dict]:
-        """Verify and decode a JWT token."""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return payload
@@ -65,7 +51,6 @@ class TokenManager:
             return None
     
     def refresh_token(self, token: str) -> Optional[str]:
-        """Refresh an existing token if valid."""
         payload = self.verify_token(token)
         if payload:
             return self.create_token(payload["user_id"], payload["email"])
@@ -73,8 +58,6 @@ class TokenManager:
 
 
 class AuthService:
-    """Main authentication service."""
-    
     def __init__(self):
         self.hasher = PasswordHasher()
         self.token_manager = TokenManager()
@@ -86,15 +69,6 @@ class AuthService:
         username: str,
         password: str
     ) -> Tuple[User, str]:
-        """
-        Register a new user.
-        
-        Returns:
-            Tuple of (User object, JWT token)
-        
-        Raises:
-            AuthenticationError: If email or username already exists
-        """
         # Check if user exists
         existing = db.query(User).filter(
             (User.email == email) | (User.username == username)
@@ -126,15 +100,6 @@ class AuthService:
         email: str,
         password: str
     ) -> Tuple[User, str]:
-        """
-        Authenticate a user and return a token.
-        
-        Returns:
-            Tuple of (User object, JWT token)
-        
-        Raises:
-            AuthenticationError: If credentials are invalid
-        """
         user = db.query(User).filter(User.email == email).first()
         
         if not user:
@@ -155,7 +120,6 @@ class AuthService:
         return user, token
     
     def get_user_from_token(self, db: Session, token: str) -> Optional[User]:
-        """Get user object from a valid token."""
         payload = self.token_manager.verify_token(token)
         if not payload:
             return None
@@ -169,7 +133,6 @@ class AuthService:
         old_password: str,
         new_password: str
     ) -> bool:
-        """Change user password."""
         user = db.query(User).filter(User.id == user_id).first()
         
         if not user:
@@ -182,7 +145,6 @@ class AuthService:
         return True
     
     def reset_password_token(self, db: Session, email: str) -> Optional[str]:
-        """Generate a password reset token."""
         user = db.query(User).filter(User.email == email).first()
         if not user:
             return None
@@ -194,7 +156,6 @@ class AuthService:
 
 # Streamlit session helpers
 def init_session_state():
-    """Initialize Streamlit session state for authentication."""
     import streamlit as st
     
     if 'authenticated' not in st.session_state:
@@ -206,7 +167,6 @@ def init_session_state():
 
 
 def require_auth(func):
-    """Decorator to require authentication for a Streamlit page."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         import streamlit as st
@@ -227,7 +187,6 @@ def require_auth(func):
 
 
 def show_login_form():
-    """Display login/registration form in Streamlit."""
     import streamlit as st
     
     auth_service = AuthService()
@@ -279,7 +238,6 @@ def show_login_form():
 
 
 def logout():
-    """Log out the current user."""
     import streamlit as st
     
     st.session_state.authenticated = False
